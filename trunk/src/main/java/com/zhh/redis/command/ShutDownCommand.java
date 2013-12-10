@@ -1,4 +1,4 @@
-package com.youku.ad.redis.command;
+package com.zhh.redis.command;
 
 public class ShutDownCommand implements RedisCommand {
 

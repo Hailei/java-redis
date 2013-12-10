@@ -1,10 +1,10 @@
-package com.youku.ad.redis.protocol;
+package com.zhh.redis.protocol;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-import com.youku.ad.redis.command.RedisReply;
+import com.zhh.redis.command.RedisReply;
 
 
 public class RedisEncoder extends OneToOneEncoder {

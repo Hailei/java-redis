@@ -1,4 +1,4 @@
-package com.youku.ad.redis;
+package com.zhh.redis;
 
 /**
  * Hello world!
