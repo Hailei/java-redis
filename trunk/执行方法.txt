@@ -1,0 +1,14 @@
+1.解压jar以后形成这样的目录
+   --| lib
+      xxx.jar
+      yyy.jar
+   --| java-redis-public.jar
+2. 执行 java -jar java-redis-publish-0.0.1.jar  CONCURRENTMAP 9080
+ 其中CONCURRENTMAP为存储引擎。支持以下三种：
+ HASHMAP, hashmap作为存储结构 会遇到并发扩容导致死循环。
+ SYNCMAP,同步的hashmap 加锁解决上面的问题
+ CONCURRENTMAP 用JUC的ConcurrentHashMap
+
+其中9080 端口号 可以指定任意
+
+3. 使用redis协议，支持redis-cli和redis-benchmark，目前只实现info get set randomkey等命令
