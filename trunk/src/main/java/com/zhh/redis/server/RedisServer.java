@@ -38,7 +38,7 @@ public class RedisServer {
 		//bootstrap.setOption("child.keepAlive", true);
 	}
 
-	public void run(String ip, int port, String path) {
+	public void run(int port) {
 		//这两个handler不涉及共享变量，所以可以所有的channel都可以共享
 		final RedisEncoder redisEncoder = new RedisEncoder();
 		final ServerHandler serverHandler = new ServerHandler(engine);
@@ -78,8 +78,8 @@ public class RedisServer {
 		    String engine = args[0];
 		    int port = Integer.parseInt(args[1]);
 			RedisServer server = new RedisServer(engine);
-	     	server.run("127.0.0.1", port, "/opt/zhanghailei/leveldb");
-			LOGGER.info("store server is started,listening port:" + 9080);
+	     	server.run(port);
+			LOGGER.info("store server is started,listening port:" + port);
 		} catch (Exception e) {
 			LOGGER.error("error:",e);
 			System.exit(1);

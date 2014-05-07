@@ -5,10 +5,14 @@ package com.zhh.redis.server;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -34,8 +38,10 @@ public class ServerHandler extends SimpleChannelHandler {
         RBTREE
     }
     private String engine;
+    private Random random = new Random();
 	static final Logger LOGGER = LoggerFactory.getLogger(ServerHandler.class);
     private Map<String,byte[]>  db = new HashMap<String, byte[]>();
+    private List<String>  keys = new ArrayList<String>();
 	public ServerHandler(String engine){
 	    this.engine = engine;
 	    if(engine.equals(ENGINE_NAME.HASHMAP.name())){
@@ -58,7 +64,6 @@ public class ServerHandler extends SimpleChannelHandler {
 		//TODO  分发的逻辑可以抽取出来以便使用多种transport
 		Object command = e.getMessage();
 	//	System.out.println(command);
-		
 		if(command instanceof ShutDownCommand){
 			ctx.getChannel().close();
 		}else{
@@ -75,13 +80,21 @@ public class ServerHandler extends SimpleChannelHandler {
 				ctx.getChannel().write(reply);
 			}else if("set".equalsIgnoreCase(type)){
 				try{
-					db.put(new String(request.getArgs().get(1)), request.getArgs().get(2));
-					ctx.getChannel().write(StatusReply.OK);
+				    String key = new String(request.getArgs().get(1));
+                    db.put(key, request.getArgs().get(2));
+                    //此处不是线程安全的，但收集keys只为randomkey使用。
+                    keys.add(key);
+                    ctx.getChannel().write(StatusReply.OK);
 				}catch(Exception ex){
 					//TODO  管理Error Reply
 					e.getChannel().write(new ErrorReply(ErrorReply.Error.ERR, ex.getMessage()));
 				}
-			}else if("info".equalsIgnoreCase(type)){
+			}else if("randomkey".equalsIgnoreCase(type)){
+                String key = keys.get(random.nextInt(keys.size()));
+                BulkReply reply = new BulkReply(key.getBytes());
+                ctx.getChannel().write(reply);
+            }
+			else if("info".equalsIgnoreCase(type)){
 			   String info = "java redis kv stored by " + engine + "\n";
 			   info = info + "key count:" + db.size() + "\n";
 			   BulkReply reply = new BulkReply(info.getBytes());
